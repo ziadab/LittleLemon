@@ -1,7 +1,8 @@
-"""littlelemon URL Configuration
+"""
+URL configuration for littlelemon project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -15,18 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
-from restaurant import views
-from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter  # Import DefaultRouter
+from restaurant.views import BookingViewSet # Import your BookingViewSet from the app's views
 
-router = routers.DefaultRouter()
-router.register(r'tables', views.BookingViewSet)
+# Create a DefaultRouter instance
+router = DefaultRouter()
+
+# Register the 'booking' URL route with the BookingViewSet
+router.register(r'booking', BookingViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('restaurant/', include('restaurant.urls')),
-    path('restaurant/booking/', include(router.urls)),
-    path('api-token-auth/', obtain_auth_token),
+    path('booking/tables/', include(router.urls)),
     path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken'))
+    path('auth/', include('djoser.urls.authtoken')),
 ]

@@ -1,45 +1,32 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
+from rest_framework import viewsets, routers
+from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from django.contrib.auth.models import User
-from .models import Booking, MenuItem
-from .serializers import BookingSerializer, MenuItemSerializer, UserSerializer
+from .models import MenuItem, Booking  # Import your MenuItem model
+from .serializers import MenuItemSerializer, BookingSerializer  # Import your MenuItemSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 # Create your views here.
-def home(request):
+def index(request):
   return render(request, 'index.html', {})
 
+class MenuItemsView(generics.ListCreateAPIView):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
 
-class UserViewSet(viewsets.ModelViewSet):
-  permission_classes = [IsAuthenticated]
-  queryset = User.objects.all()
-  serializer_class = UserSerializer
 
+class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
+    
 
 class BookingViewSet(viewsets.ModelViewSet):
-  permission_classes = [IsAuthenticated]
-  queryset = Booking.objects.all()
-  serializer_class = BookingSerializer
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
 
 
-class MenuItemsView(generics.ListCreateAPIView):
-  permission_classes = [IsAuthenticated]
-  queryset = MenuItem.objects.all()
-  serializer_class = MenuItemSerializer
-
-
-class SingleMenuItemView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
-  permission_classes = [IsAuthenticated]
-  queryset = MenuItem.objects.all()
-  serializer_class = MenuItemSerializer
-
-
-@api_view()
-@permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-def msg(request):
-  return Response({"message":"This view is protected"})
+# Create a router and register the viewset with URL routes
+router = routers.DefaultRouter()
+router.register(r'bookings', BookingViewSet)
